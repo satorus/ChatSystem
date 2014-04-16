@@ -67,13 +67,15 @@ public class ChatClient extends Thread {
 			}
 		} */
 		
-		nick = args[0];		
-		String[] argsSplit = args[1].split(":");
-		if(!argsSplit[0].isEmpty()){
-			host = argsSplit[0];
-		}
-		if(!argsSplit[1].isEmpty()){
-			port = Integer.parseInt(argsSplit[1]);
+		nick = args[0];
+		if(args.length > 1){
+			String[] argsSplit = args[1].split(":");
+			if(!argsSplit[0].isEmpty()){
+				host = argsSplit[0];
+			}
+			if(argsSplit.length > 1 && !argsSplit[1].isEmpty()){
+				port = Integer.parseInt(argsSplit[1]);
+			}
 		}
 		
 		
