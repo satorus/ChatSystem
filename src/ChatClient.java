@@ -66,7 +66,10 @@ public class ChatClient extends Thread {
 				port = Integer.parseInt(args[i].substring(1));
 			}
 		} */
-		
+		if(args.length == 0){
+			System.out.println("Bitte Nicknamen als Argument uebergeben!");
+			System.exit(0);
+		}
 		nick = args[0];
 		if(args.length > 1){
 			String[] argsSplit = args[1].split(":");
