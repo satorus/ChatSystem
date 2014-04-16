@@ -52,8 +52,8 @@ public class ChatClient extends Thread {
 		String host = "127.0.0.1";
 		int port = 5678;
 		
-		for (int i = 0; i < args.length; i++) {
-			if (!isNumeric(args[i])) {
+		/*for (int i = 0; i < args.length; i++) {
+			if (!args[i].startsWith(":")) {
 				if (nick.equals("")){
 					nick = args[i];
 				}
@@ -61,10 +61,21 @@ public class ChatClient extends Thread {
 					host = args[i];
 				}
 			}
-			if (isNumeric(args[i])) {
-				port = Integer.parseInt(args[i]);
+			
+			if (args[i].startsWith(":")) {
+				port = Integer.parseInt(args[i].substring(1));
 			}
+		} */
+		
+		nick = args[0];		
+		String[] argsSplit = args[1].split(":");
+		if(!argsSplit[0].isEmpty()){
+			host = argsSplit[0];
 		}
+		if(!argsSplit[1].isEmpty()){
+			port = Integer.parseInt(argsSplit[1]);
+		}
+		
 		
 		try{
 		Socket socket = new Socket(host,port);
