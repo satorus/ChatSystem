@@ -6,9 +6,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Vector;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class ChatServer extends Thread {
+	
+	final Lock lock = new ReentrantLock();
 
 	private Socket socket;				//the socket the thread belongs to
 	private Vector<Socket> sockets;		//list of connected sockets (Vector for Thread-Safety)
@@ -29,7 +33,9 @@ public class ChatServer extends Thread {
 		String s = in.readLine();
 		
 		if(s == null){
+			lock.lock();
 			sockets.remove(socket);
+			lock.unlock();
 			break;
 		}
 		
@@ -38,9 +44,14 @@ public class ChatServer extends Thread {
 		}
 		
 		try{
+			lock.lock();
 			distributeMessage(s);
+			//lock.unlock();
 		} catch(IOException e){
 			e.printStackTrace();
+		}
+		finally {
+			lock.unlock();
 		}
 		
 		
@@ -54,7 +65,7 @@ public class ChatServer extends Thread {
 	}
 	
 	public synchronized void distributeMessage(String s) throws IOException{
-		try{
+		try{			
 			for(int i = 0;i < sockets.size();i++){
 				if(sockets.get(i) != socket){
 					OutputStreamWriter outTemp = new OutputStreamWriter(sockets.get(i).getOutputStream(), "US-ASCII");
