@@ -1,0 +1,33 @@
+Robin Wenzel 346688 robin@die-wenzels.de		Robert Bublik 
+
+
+									Internet: Protokolle und Anwendungen
+												Blatt 1
+a)
+	Ja, da Zeilenweise eingelesen und geschrieben wird, somit die Nachrichten nicht zerstückelt werden.
+	Würde man Byteweise lesen/schreiben, könnten die einzelnen Buchstaben vermischt werden und der
+	Versand in einem Stück wäre nicht gewährleistet.
+
+b)
+	Wenn man die Clients auf Ubuntu und Windows auf verschiedener Hardware laufen lässt,
+	funktioniert soweit alles. Es könnte passieren, das Bibliotheken genutzt werden,
+	welche in älteren Java - Versionen oder bei anderen Herstellern nicht enthalten sind.
+	Dies ließe sich umgehen, in dem man möglichst wenige speziefische/neue Bibliotheken verwendet.
+
+c)
+	Das Senden von Nachrichten kann auch nach mehreren Versuchen normal fortgesetzt werden.
+	Dies liegt daran, dass das removen des Clients aus der Liste durch ein Lock geschützt ist, welches
+	auch das broadcasten der Messages schützt. Somit kann nicht während des iterierens durch die Liste
+	der Client aus dieser entfernt werden, wodurch keine ArrayOutOfBounds Exceptions auftreten können.
+	Es wird zwar vielleicht an einen geschlossenen Socket geschrieben, diese Exception wird jedoch
+	abgefangen.
+
+
+Probleme könnten auftreten, wenn ein Client sehr langsam ist, da z.B. seine Netzwerkverbindung gestört ist.
+Beim broadcasten der Messages würde dann auf diesen Client gewartet werden, bis die Nachricht an ihn
+geschrieben wurde. Die anderen Clients würden also auch langsam werden. Umgehen ließe sich das z.B. mit einem
+Extrathread pro Client, der sich um das versenden kümmert, sodass ein langsamer Client die anderen nicht
+beeinträchtigt. Man könnte auch "nonblocking I/O" verwenden, welche dann nur soviel an den langsamen Client
+sendet, wie sie grade kann, sich aber merkt, wieviel noch zu senden ist und dann erst die schnellen Clients
+abarbeitet. Auch wäre es eine (etwas unschöne) Möglichkeit, den langsamen Client mittels eines Timeouts zu
+umgehen.
