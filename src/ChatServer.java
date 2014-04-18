@@ -9,10 +9,19 @@ import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/*
+ * 	A ChatServer implementation
+ * 
+ * 	start with java ChatServer [-debug] [port]
+ *
+ * 
+ * 
+ */
+
 
 public class ChatServer extends Thread {
 	
-	final Lock lock = new ReentrantLock();
+	final Lock lock = new ReentrantLock();	//lock to manage socket vector
 
 	private Socket socket;				//the socket the thread belongs to
 	private Vector<Socket> sockets;		//list of connected sockets (Vector for Thread-Safety)
@@ -26,13 +35,17 @@ public class ChatServer extends Thread {
 	
 	public void run(){
 		try{
+		//-- get In/Out streams
 		BufferedReader	in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), "US-ASCII");
 		
 		while(true){
+			
+		//-- read string from socket input
 		String s = in.readLine();
 		
 		if(s == null){
+			// remove socket from list because he issued "quit"; use of lock so that the socket can't be removed while iterating through the list
 			lock.lock();
 			sockets.remove(socket);
 			lock.unlock();
@@ -43,6 +56,8 @@ public class ChatServer extends Thread {
 			System.out.print(s);
 		}
 		
+		
+		//-- distribute message to all clients. Lock list so that socket can't be removed while iterating.
 		try{
 			lock.lock();
 			distributeMessage(s);
@@ -64,6 +79,11 @@ public class ChatServer extends Thread {
 		} catch(IOException e){}
 	}
 	
+	
+	/*
+	 * Iterate through all sockets and send the given messasge to them
+	 */
+	
 	public synchronized void distributeMessage(String s) throws IOException{
 		try{			
 			for(int i = 0;i < sockets.size();i++){
@@ -75,16 +95,6 @@ public class ChatServer extends Thread {
 			}
 		} catch(SocketException e){}
 		
-		/*for(Socket socketTemp : sockets){
-			if(socketTemp != socket){
-				OutputStreamWriter outTemp = new OutputStreamWriter(socketTemp.getOutputStream(), "US-ASCII");
-				outTemp.write(s + "\n");
-				outTemp.flush();
-			}
-		}
-		
-		*/
-		
 	}
 	
 	/**
@@ -95,6 +105,8 @@ public class ChatServer extends Thread {
 		int port = 5678;
 		boolean debug = false;
 		Vector<Socket> sockets = new Vector<>();
+		
+		//-- parse the args[]
 		
 		if (args.length == 1){
 			if(args[0].equals("-debug")){
@@ -115,10 +127,13 @@ public class ChatServer extends Thread {
 		//System.out.println(port);
 		
 		try{
+		//-- start new server
 		ServerSocket server = new ServerSocket(port);
 		//System.out.println("server created!");
 		
 		while(true){
+			
+		//-- accept connecting Clients and start new thread to handle them
 		Socket socket = server.accept();
 		sockets.add(socket);
 		//System.out.println("connection!");
