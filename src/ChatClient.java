@@ -102,7 +102,11 @@ public class ChatClient extends Thread {
 			System.out.println(chatMessage);
 		}
 		
-		} catch(IOException e){}
+		} catch(IOException e){
+			if(!shutdown){
+				System.out.println("connecting not possible. Maybe the ip/port is wrong?");
+			}
+		  }
 	}
 	
 	/*
